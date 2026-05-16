@@ -1,8 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { config } from './config.js';
 import { logger } from './logger.js';
 
-const client = new Anthropic({ apiKey: config.anthropic.apiKey });
+const client = new OpenAI({ apiKey: config.openai.apiKey });
 
 const SYSTEM_PROMPT = `Ты — эксперт по лидогенерации для digital-маркетолога и таргетолога.
 Тебе дают текст поста из социальной сети Threads.
@@ -56,19 +56,17 @@ export async function analyzePost(post) {
   const truncatedText = post.text.slice(0, 1500);
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const completion = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
       max_tokens: 256,
-      system: SYSTEM_PROMPT,
+      response_format: { type: 'json_object' },
       messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: USER_TEMPLATE(truncatedText, post.keyword) },
       ],
     });
 
-    const responseText = message.content
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
+    const responseText = completion.choices[0]?.message?.content ?? '';
 
     const result = parseResponse(responseText);
     logger.debug(`Analyzed post ${post.postId}: score=${result.score}, is_lead=${result.is_lead}`);

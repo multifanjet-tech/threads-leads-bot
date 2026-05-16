@@ -36,8 +36,8 @@ export const config = {
     actorId: optional('APIFY_ACTOR_ID', 'apidojo/threads-scraper'),
     maxItems: parseInt(optional('APIFY_MAX_ITEMS', '50'), 10),
   },
-  anthropic: {
-    apiKey: required('ANTHROPIC_API_KEY'),
+  openai: {
+    apiKey: required('OPENAI_API_KEY'),
   },
   telegram: {
     token: required('TELEGRAM_BOT_TOKEN'),
